@@ -16,6 +16,7 @@ var score;
 var ballBuild;
 var availableBalls;
 var collideSounds;
+const minAngle = Math.PI/12.0;
 
 function init () {
     collideSounds = [new Audio("assets/bk3.mp3"), new Audio("assets/bk7.mp3")];
@@ -47,8 +48,18 @@ function init () {
             if(availableBalls > 0) {
                 var travelVector = new Vector(mousePos.x - clickDownPoint.x, (mousePos.y - clickDownPoint.y))
                 travelVector.setMagnitude(4);
+                //****************************
+                //*WARNING: ANGLES ARE STUPID*
+                //*RIGHT = 0                 *
+                //*UP = -PI/2                *
+                //*LEFT = -PI                *
+                //****************************
+                if(travelVector.getDirection() < (-Math.PI) + minAngle || (travelVector.y > 0 && travelVector.x < 0))
+                    travelVector.setDirection((-Math.PI) + minAngle);
+                if(travelVector.getDirection() >  -minAngle)
+                    travelVector.setDirection(-minAngle);
                 if(travelVector.getDirection() == 0 || travelVector.getDirection() == Math.PI)
-                    travelVector.setDirection(3 * Math.PI/2);
+                    travelVector.setDirection(3 *Math.PI/2);
                 balls.push(new Ball(new Vector(clickDownPoint.x, canvH + 5), travelVector, 20, true));
                 availableBalls--;
             }
@@ -62,8 +73,18 @@ function init () {
             if(availableBalls > 0 &&  !lost) {
                 var travelVector = new Vector(mousePos.x - clickDownPoint.x, (mousePos.y - clickDownPoint.y))
                 travelVector.setMagnitude(4);
-                if(travelVector.getDirection() == 0 || travelVector.getDirection() == Math.PI)
-                    travelVector.setDirection(3 * Math.PI/2);
+                //****************************
+                //*WARNING: ANGLES ARE STUPID*
+                //*RIGHT = 0                 *
+                //*UP = -PI/2                *
+                //*LEFT = -PI                *
+                //****************************
+                if(travelVector.getDirection() < (-Math.PI) + minAngle || (travelVector.y > 0 && travelVector.x < 0))
+                    travelVector.setDirection((-Math.PI) + minAngle);
+                if(travelVector.getDirection() >  -minAngle)
+                    travelVector.setDirection(-minAngle);
+                if(travelVector.getDirection() == 0 || travelVector.getDirection() == Math.PI )
+                    travelVector.setDirection(3 *Math.PI/2);
                 balls.push(new Ball(new Vector(clickDownPoint.x, canvH + 5), travelVector, 20, true));
                 availableBalls--;
             }
@@ -118,7 +139,13 @@ function paint() {
             hdc.strokeStyle = "#000000";
         hdc.beginPath();
         hdc.moveTo(clickDownPoint.x, clickDownPoint.y);
-        hdc.lineTo(mousePos.x, mousePos.y);
+        var lineVector = new Vector(mousePos.x - clickDownPoint.x, mousePos.y - clickDownPoint.y);
+        console.log(lineVector.x + "\t" + lineVector.y)
+        if(lineVector.getDirection() < (-Math.PI) + minAngle || (lineVector.y > 0 && lineVector.x < 0))
+            lineVector.setDirection((-Math.PI) + minAngle);
+        if(lineVector.getDirection() >  -minAngle)
+            lineVector.setDirection(-minAngle);
+        hdc.lineTo(clickDownPoint.x + lineVector.x, clickDownPoint.y + lineVector.y);
         hdc.stroke();
     }
     hdc.fillStyle = "#4F677C"
